@@ -1,19 +1,20 @@
 ---
-import { getCollection } from 'astro:content';
-
-export const prerender = true;
-
-export async function getStaticPaths() {
-  const resources = await getCollection('resources');
-  return resources.map(entry => ({
-    params: { slug: entry.slug },
-    props: { entry },
-  }));
-}
-
-const { entry } = Astro.props;
-const { title, headline, subtitle, pdfUrl, valueProps, ctaText, previewDescription, pages, type } = entry.data;
-const { Content } = await entry.render();
+const data = {
+  title: "Apex Part 1 — Foundations",
+  badge: "Free Guide",
+  headline: "The Peptide Protocol to Enhance Your Performance",
+  subtitle: "Get our free guide covering the top peptide stacks for recovery, fat loss, and longevity — used by elite athletes who refuse to slow down.",
+  pdfUrl: "https://drive.google.com/uc?export=download&id=1MXFkza1n2cZTHyRBVgZvkeE0J6YXqKwo",
+  valueProps: [
+    "The foundational peptide stack for recovery and performance",
+    "How to cycle peptides safely for maximum results",
+    "Fat loss and body composition protocols used by elite athletes",
+    "Science-backed dosing guidelines for beginners and advanced users",
+  ],
+  ctaText: "Get the Free Guide",
+  pages: 1,
+  source: "apex-foundations",
+};
 ---
 
 <!DOCTYPE html>
@@ -21,8 +22,7 @@ const { Content } = await entry.render();
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>{title} — Naolux Labs</title>
-  <meta name="description" content={previewDescription} />
+  <title>{data.title} — Naolux Labs</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { font-family: 'Segoe UI', sans-serif; background: #0a0a0a; color: #fff; min-height: 100vh; display: flex; align-items: center; justify-content: center; }
@@ -46,28 +46,32 @@ const { Content } = await entry.render();
 </head>
 <body>
   <div class="container">
-    <div class="badge">Free {type}</div>
-    <h1>{headline}</h1>
-    <p class="subtitle">{subtitle}</p>
-    <p class="meta">{pages} pages · Instant download</p>
+    <div class="badge">{data.badge}</div>
+    <h1>{data.headline}</h1>
+    <p class="subtitle">{data.subtitle}</p>
+    <p class="meta">{data.pages} page · Instant download</p>
     <ul class="value-props">
-      {valueProps.map(prop => <li>{prop}</li>)}
+      {data.valueProps.map(prop => <li>{prop}</li>)}
     </ul>
     <form id="form">
       <input type="text" id="name" placeholder="Your first name" required />
       <input type="email" id="email" placeholder="Your email address" required />
-      <button type="submit">{ctaText} →</button>
+      <button type="submit">{data.ctaText} →</button>
     </form>
     <p class="note">No spam. Unsubscribe anytime.</p>
     <div class="success" id="success">✓ Your guide is downloading now!</div>
   </div>
-  <script define:vars={{ pdfUrl }}>
+  <script define:vars={{ pdfUrl: data.pdfUrl, source: data.source }}>
     document.getElementById('form').addEventListener('submit', async (e) => {
       e.preventDefault();
       const name = document.getElementById('name').value;
       const email = document.getElementById('email').value;
       try {
-        await fetch('/api/capture', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name, email, source: window.location.pathname }) });
+        await fetch('https://naolux-landing.vercel.app/api/capture', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, email, source }),
+        });
       } catch {}
       document.getElementById('form').style.display = 'none';
       document.getElementById('success').style.display = 'block';
